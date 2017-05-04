@@ -42,7 +42,7 @@ s_free(slist* xs)
 slist*
 s_split(const char* text, char delim)
 {
-	//printf("s_split enter @:\"%s\"\n", text);
+	printf("s_split enter @:\"%s\"\n", text);
     if (*text == 0 || text[0] == '\0') {
         return 0;
     }
@@ -53,7 +53,7 @@ s_split(const char* text, char delim)
         plen += 1;
     }
 
-    //printf("s_split flag 2\n");
+    printf("s_split flag 2\n");
 
     int skip = 0;
     if (text[plen] == delim) {
@@ -66,10 +66,13 @@ s_split(const char* text, char delim)
     char*  part = alloca(plen + 2);
     memcpy(part, text, plen);
 
-    //printf("s_split flag 4\n");
+    printf("s_split flag 4\n");
     part[plen] = 0;
     
     //printf("s_split adding part:\"%s\"\n", part);
-    return s_cons(part, rest);
+    printf("!!!!!s_split assigning cons:\"%s\"\n", part);
+    slist* result = s_cons(part, rest);
+    printf("!!!!!!!!s_split returning:\"%s\"\n", result->data);
+    return result;
 }
 

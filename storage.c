@@ -106,16 +106,25 @@ dirname(const char* path)
 {
     // turns a path to a file into just the path
     // /users/caleb/hello.txt -> /users/caleb
+    printf("Dirname FLAG 0\n");
     slist* dirnames = s_split(path, '/');
+    printf("Dirname FLAG 1\n");
     dirnames = dirnames->next;
     size_t inputlen = strlen(path);
 
+    printf("Dirname FLAG 2\n");
     if (dirnames->next == 0) { return "/"; }
-    char* rval = malloc(inputlen * sizeof(char));  
+    char* rval = malloc(inputlen * sizeof(char));
+
+    printf("Dirname FLAG 3\n");  
     while (dirnames->next != 0) {
+        printf("  Dirname while @:\"%s\"\n", dirnames->data);
         strcat(rval, "/");
         strcat(rval, dirnames->data);
+        dirnames = dirnames->next;
     }
+
+    printf("Dirname FLAG 4\n");
     return rval;
 }
 
@@ -124,7 +133,11 @@ basename(const char* path)
 {
     // turns a path to a file into the file name
     // /users/caleb/hello.txt -> hello.txt
-    slist* dirnames = s_split(path, '/');
+    printf("Basename FLAG 0\n");
+    slist* dirnames;
+    printf("Basename FLAG !\n");
+    dirnames = s_split(path, '/');
+    printf("YOU NEVER SEE ME!\n");
     if (strcmp(path, "/") == 0) { return ""; }
     while (1) {
          if (dirnames->next == 0) { break; }
@@ -144,6 +157,7 @@ storage_mknod(const char* path, mode_t mode, dev_t rdev)
     strcpy(tmp2, path);
     printf("mknod point 0.1\n");
     char* dname = dirname(tmp1);
+    printf("mknod point 0.11\n");
     char* name = basename(tmp2);
 
 
