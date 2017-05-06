@@ -167,6 +167,27 @@ nufs_link(const char *from, const char *to)
     return storage_link(from, to);
 }
 
+int 
+nufs_symlink(const char* from, const char* to)
+{
+	printf("symlink(%s, %s)\n", from, to);
+	return storage_symlink(from, to);
+	
+}
+
+int
+nufs_readlink(const char* path, char* buff, size_t size)
+{
+	printf("readlink(%s, %u)\n", path, size);
+	return 0;
+}
+
+int
+nufs_fgetattr(const char* path, struct stat* stbuff)
+{
+	printf("fgetattr(%s)\n", path);
+	return -1;
+}
 void
 nufs_init_ops(struct fuse_operations* ops)
 {
@@ -186,6 +207,8 @@ nufs_init_ops(struct fuse_operations* ops)
     ops->write    = nufs_write;
 
     ops->link     = nufs_link;
+    ops->symlink  = nufs_symlink;
+    ops->readlink = nufs_readlink;
 };
 
 struct fuse_operations nufs_ops;

@@ -20,5 +20,7 @@ int         storage_rename(const char* from, const char* to);
 int         storage_mkdir(const char* path, mode_t mode);
 int         storage_rmdir(const char* path);
 int         storage_link(const char *from, const char *to);
+int         storage_symlink(const char* from, const char* to);
+int         storage_readlink(const char* path, char* buff, size_t size);
 
 #endif

@@ -7,7 +7,8 @@ typedef struct inode {
     int refs; // reference count
     int mode; // permission & type
     int size; // bytes for file
-    int xtra; // more stuff can go here
+    int xtra; // more stuff can go here	
+	      // symlinks store next pnum here
 } pnode;
 
 void   pages_init(const char* path);

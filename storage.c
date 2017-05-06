@@ -35,8 +35,7 @@ get_stat(const char* path, struct stat* st)
     int pnum = tree_lookup_pnum(path);
     printf("pnum: %i\n", pnum);
     if (pnum < 0) {
-		printf("returnig: %i\n", -2);
-        return -2;
+        return -ENOENT;
     }
 
     pnode* node = pages_get_node(pnum);
@@ -136,11 +135,11 @@ basename(const char* path)
 {
     // turns a path to a file into the file name
     // /users/caleb/hello.txt -> hello.txt
-    printf("Basename FLAG 0\n");
+    //printf("Basename FLAG 0\n");
     slist* dirnames;
-    printf("Basename FLAG !\n");
+    //printf("Basename FLAG !\n");
     dirnames = s_split(path, '/');
-    printf("YOU NEVER SEE ME!\n");
+    //printf("YOU NEVER SEE ME!\n");
     if (strcmp(path, "/") == 0) { return ""; }
     while (1) {
          if (dirnames->next == 0) { break; }
@@ -283,7 +282,48 @@ storage_link(const char *from, const char *to)
 }
 
 
+int 
+storage_symlink(const char* from, const char* to)
+{
+	directory dir = directory_from_path(to);
+	const char* name = basename(to);
 
+    if (dir.node == 0) { return -ENOENT; }
+    if (directory_lookup_pnum(dir, name) != -ENOENT) { return -EEXIST; }
+
+    int pnum = pages_find_empty();
+    pnode* node = pages_get_node(pnum);
+    node->refs = 0;
+	printf("s_iflnk:%i\n", S_IFLNK);
+    node->mode = 41453;//S_IFLNK + 755;  // <----- mark it as a symlink
+	
+	int from_pnum = tree_lookup_pnum(from);
+	node->xtra = from_pnum;  // store the pnum of the origional file here.
+	
+	// Store the path of from into the page @ to
+	void* page = pages_get_page(pnum);
+	memcpy(page, from, sizeof page);
+
+    return directory_put_ent(dir, name, pnum);
+	
+}
+
+
+
+
+int
+storage_readlink(const char* path, char* buff, size_t size)
+{
+	int link_pnum = tree_lookup_pnum(path);
+	pnode* link_node = pages_get_node(link_pnum);	
+
+	int next_pnum = link_node->xtra;
+	//pnode* next_node = pages_get_node(next_pnum);
+	void* page = pages_get_page(next_pnum);
+	
+	memcpy(buff, page, size);
+	return size;
+}
 
 
 
