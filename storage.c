@@ -30,17 +30,20 @@ get_file_data(const char* path) {
 int
 get_stat(const char* path, struct stat* st)
 {
+    memset(st, 0, sizeof(struct stat));
+
     int pnum = tree_lookup_pnum(path);
     printf("pnum: %i\n", pnum);
     if (pnum < 0) {
-        return -ENOENT;
+		printf("returnig: %i\n", -2);
+        return -2;
     }
+
     pnode* node = pages_get_node(pnum);
-    memset(st, 0, sizeof(struct stat));
     st->st_uid  = getuid();
-    printf("uid: %i\n", getuid());
+    //printf("uid: %i\n", getuid());
     st->st_mode = node->mode;
-    printf("mode: %i\n", node->mode);
+    //printf("mode: %i\n", node->mode);
     st->st_size = node->size;
     //printf("returning 0\n");
     return 0;
@@ -204,11 +207,14 @@ storage_rename(const char* from, const char* to)
     int oldpnum = tree_lookup_pnum(from);
     pnode* oldnode = pages_get_node(oldpnum);
     int newpnum = pages_find_empty();
+
     if (newpnum < 0) { return newpnum; }
+
     pnode* newnode = pages_get_node(newpnum);
     newnode->mode = oldnode->mode;
     newnode->size = oldnode->size;
     newnode->xtra = oldnode->xtra;
+
     directory olddir = directory_from_path(from);
     char* oldfilename = basename(from);
     int rv = directory_put_ent(newdir, newfilename, newpnum);
@@ -251,3 +257,39 @@ storage_rmdir(const char* path)
     directory parent_dir = directory_from_path(parent_path);
     return directory_delete(parent_dir, target_name);
 }
+
+
+// Creates a hard link between "form" and "to". Here, from is 
+// and existing path, and to is a new path.
+int
+storage_link(const char *from, const char *to)
+{
+	if(/* "to" already exists*/ 0) {
+		return -EEXIST;
+	}
+	
+	
+	// Get the inode for the origional file
+	int old_pnum = tree_lookup_pnum(from);
+	
+	// Where we want to put the new pnode
+	directory target_dir = directory_from_path(to);
+	
+	// What should we call the new hardlink file?
+	const char* name = basename(to);
+
+	// Put a new direent in target_dir pointing to old_pnum
+	directory_put_ent(target_dir, name, old_pnum);
+}
+
+
+
+
+
+
+
+
+
+
+
+

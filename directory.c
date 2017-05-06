@@ -55,50 +55,6 @@ int directory_lookup_pnum(directory dd, const char* name) {
     return -ENOENT;
 }
 
-/*
-static char*
-basename(const char* path)
-{
-    // turns a path to a file into the file name
-    // /users/caleb/hello.txt -> hello.txt
-    slist* dirnames = s_split(path, '/');
-    if (strcmp(path, "/") == 0) { return ""; }
-    while (1) {
-         if (dirnames->next == 0) { break; }
-         else { dirnames = dirnames->next; }
-    }
-    return dirnames->data;
-}
-
-static char*
-dirname(const char* path)
-{
-    // turns a path to a file into just the path
-    // /users/caleb/hello.txt -> /users/caleb
-
-	printf("    dirname looking @:\"%s\"\n", path);
-    slist* dirnames = s_split(path, '/');
-
-	printf("    dirname flag 1");
-    dirnames = dirnames->next;
-    size_t inputlen = strlen(path);
-
-    if (dirnames->next == 0) { return "/"; }
-
-	printf("    dirname flag 2");
-    char* rval = malloc(inputlen * sizeof(char)); 
-
-	printf("    dirname flag 3");
-    while (dirnames->next != 0) {
-        strcat(rval, "/");
-        strcat(rval, dirnames->data);
-    }
-	printf("    dirname returns \n");
-    return rval;
-}
-*/
-
-
 int tree_lookup_pnum(const char* path) {
 	printf("  tree_lookup_pnum at path:\"%s\"\n", path);
 

@@ -22,6 +22,7 @@ nufs_access(const char *path, int mask)
     if (/*path doesn't exist*/!storage_access(path, mask)) {
         return -ENOENT;
     }
+    // TODO:
     else if (/*requested permission isn't available*/0) {
         return -EACCES;
     }
@@ -57,7 +58,6 @@ nufs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 
     get_stat(path, &st);
 
-    //get_stat("/", &st);
     // filler is a callback that adds one item to the result
     // it will return non-zero when the buffer is full
     filler(buf, ".", &st, 0);
@@ -66,9 +66,6 @@ nufs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
         filler(buf, contents->data, &st, 0);
         contents = contents->next;
     }
-
-    //get_stat("/hello.txt", &st);
-    //filler(buf, "hello.txt", &st, 0);
 
     return 0;
 }
@@ -79,7 +76,7 @@ int
 nufs_mknod(const char *path, mode_t mode, dev_t rdev)
 {
     printf("mknod(%s, %04o)\n", path, mode);
-    return storage_mknod(path, mode, rdev);//-1;
+    return storage_mknod(path, mode, rdev);
 }
 
 // most of the following callbacks implement
@@ -89,6 +86,7 @@ nufs_mkdir(const char *path, mode_t mode)
 {
     printf("mkdir(%s)\n", path);
      
+    //TODO:
     if (/*failedrv != */0) {
         return -errno;
     }
@@ -100,12 +98,6 @@ nufs_unlink(const char *path)
 {
     printf("unlink(%s)\n", path);
     return storage_unlink(path);
-/* 
-    if (0) {
-        return -errno;
-    }
-    return 0;//-1;
-*/
 }
 
 int
@@ -116,7 +108,7 @@ nufs_rmdir(const char *path)
     if (0) {
         return -errno;
     }
-    return storage_rmdir(path);//-1;
+    return storage_rmdir(path);
 }
 
 // implements: man 2 rename
@@ -168,6 +160,13 @@ nufs_write(const char *path, const char *buf, size_t size, off_t offset, struct 
     return storage_write(path, buf, size, offset);//-1;
 }
 
+int
+nufs_link(const char *from, const char *to)
+{
+    printf("link(%s, %s)\n", from, to);
+    return storage_link(from, to);
+}
+
 void
 nufs_init_ops(struct fuse_operations* ops)
 {
@@ -185,6 +184,8 @@ nufs_init_ops(struct fuse_operations* ops)
     ops->open	  = nufs_open;
     ops->read     = nufs_read;
     ops->write    = nufs_write;
+
+    ops->link     = nufs_link;
 };
 
 struct fuse_operations nufs_ops;
@@ -192,7 +193,7 @@ struct fuse_operations nufs_ops;
 int
 main(int argc, char *argv[])
 {
-    assert(argc > 2);// && argc < 5);
+    assert(argc > 2);
     storage_init(argv[--argc]);
     nufs_init_ops(&nufs_ops);
     return fuse_main(argc, argv, &nufs_ops, NULL);
