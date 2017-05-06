@@ -93,6 +93,7 @@ nufs_mkdir(const char *path, mode_t mode)
     return storage_mkdir(path, mode);
 }
 
+// acts as removing a node pointed to by path
 int
 nufs_unlink(const char *path)
 {
@@ -100,6 +101,7 @@ nufs_unlink(const char *path)
     return storage_unlink(path);
 }
 
+// removes a directory specified by path
 int
 nufs_rmdir(const char *path)
 {
@@ -160,6 +162,8 @@ nufs_write(const char *path, const char *buf, size_t size, off_t offset, struct 
     return storage_write(path, buf, size, offset);//-1;
 }
 
+// creates a hard link at to, pointing to the data refrenced by 
+// from. TODO: Currently not working. 
 int
 nufs_link(const char *from, const char *to)
 {
@@ -167,6 +171,8 @@ nufs_link(const char *from, const char *to)
     return storage_link(from, to);
 }
 
+// creates a soft link at to, refrencing the name of the path
+// from.
 int 
 nufs_symlink(const char* from, const char* to)
 {
@@ -175,6 +181,8 @@ nufs_symlink(const char* from, const char* to)
 	
 }
 
+// reads the data at the end of the link at path. TODO: Currently
+// not working properyly.
 int
 nufs_readlink(const char* path, char* buff, size_t size)
 {

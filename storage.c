@@ -16,6 +16,7 @@ storage_init(const char* path)
     directory_init();    
 }
 
+// Gets the page/data refrenced at the specified payt
 static void*
 get_file_data(const char* path) {
 
@@ -27,6 +28,8 @@ get_file_data(const char* path) {
     return pages_get_page(pnum);
 }
 
+// Gets stats, or meta data about the file at path. Stores 
+// the information in the stat struct.
 int
 get_stat(const char* path, struct stat* st)
 {
@@ -48,6 +51,8 @@ get_stat(const char* path, struct stat* st)
     return 0;
 }
 
+// returns the data refrenced by path, but casted as a 
+// char*
 const char*
 get_data(const char* path)
 {
@@ -59,7 +64,8 @@ get_data(const char* path)
     return (char*) dat;
 }
 
-
+// coppies the data from path, starting at offset, into the buff.
+// Will not coppy more than specified size, or past end of file
 int
 storage_read(const char* path, char* buf, size_t size, off_t offset)
 {
@@ -75,6 +81,9 @@ storage_read(const char* path, char* buf, size_t size, off_t offset)
     return count;
 }
 
+// coppies data from the buff, into the file at path starting at
+// the offset. Will not coppy more than specified size, or past
+// the end of the file. 
 int
 storage_write(const char* path, const char* buf, size_t size, off_t offset)
 {
@@ -88,6 +97,8 @@ storage_write(const char* path, const char* buf, size_t size, off_t offset)
     return size;
 }
 
+// 0s out add the data in the file at path, past the specified 
+// size.
 int
 storage_truncate(const char* path, off_t size)
 {
@@ -103,24 +114,19 @@ storage_truncate(const char* path, off_t size)
     return 0;
 }
 
+// converts a valid path into the path to the parent directory.
+// EG:   /users/caleb/hello.txt -> /users/caleb
 static char*
 dirname(const char* path)
 {
-    // turns a path to a file into just the path
-    // /users/caleb/hello.txt -> /users/caleb
-    printf("Dirname FLAG 0\n");
     slist* dirnames = s_split(path, '/');
-    printf("Dirname FLAG 1\n");
     dirnames = dirnames->next;
     size_t inputlen = strlen(path);
 
-    printf("Dirname FLAG 2\n");
     if (dirnames->next == 0) { return "/"; }
     char* rval = malloc(inputlen * sizeof(char));
 
-    printf("Dirname FLAG 3\n");  
     while (dirnames->next != 0) {
-        printf("  Dirname while @:\"%s\"\n", dirnames->data);
         strcat(rval, "/");
         strcat(rval, dirnames->data);
         dirnames = dirnames->next;
@@ -130,16 +136,13 @@ dirname(const char* path)
     return rval;
 }
 
+// converts a valid path into the name of the file.
+// EG:   /users/caleb/hello.txt -> hello.txt
 static char*
 basename(const char* path)
 {
-    // turns a path to a file into the file name
-    // /users/caleb/hello.txt -> hello.txt
-    //printf("Basename FLAG 0\n");
     slist* dirnames;
-    //printf("Basename FLAG !\n");
     dirnames = s_split(path, '/');
-    //printf("YOU NEVER SEE ME!\n");
     if (strcmp(path, "/") == 0) { return ""; }
     while (1) {
          if (dirnames->next == 0) { break; }
@@ -148,31 +151,23 @@ basename(const char* path)
     return dirnames->data;
 }
 
+// adds a new file, with name and location specified by path,
+// with provided mode.
 int
 storage_mknod(const char* path, mode_t mode, dev_t rdev)
 {
-    printf("mknod point 0\n");
     char* tmp1 = alloca(strlen(path));
     char* tmp2 = alloca(strlen(path));
 
     strcpy(tmp1, path);
     strcpy(tmp2, path);
-    printf("mknod point 0.1\n");
     char* dname = dirname(tmp1);
-    printf("mknod point 0.11\n");
     char* name = basename(tmp2);
 
-
-    printf("mknod point 0.2\n");
-    printf("dirname: %s\n", dname);
     directory dd = directory_from_path(dname);
-    printf("mknod point 1\n");
-
 
     if (dd.node == 0) { return -ENOENT; }
     if (directory_lookup_pnum(dd, name) != -ENOENT) { return -EEXIST; }
-    printf("mknod point 2\n");
-
 
     int pnum = pages_find_empty();
     pnode* node = pages_get_node(pnum);
@@ -181,22 +176,24 @@ storage_mknod(const char* path, mode_t mode, dev_t rdev)
     return directory_put_ent(dd, name, pnum);
 }
 
+// Retrieves the pnum from the file at path
 int
 storage_access(const char* path, int mask)
 {
     return tree_lookup_pnum(path);
 }
 
+// removes te refrence, specified by path, to the file. If this
+// was the last refrence the file is deleted and memory is returned.
 int
 storage_unlink(const char* path)
 {
     directory dd = directory_from_path(path);
-    //printf("in unlink, after directory_from_path\n");
     char* name = basename(path);
-    //printf("in unlink, after basename\n");
     return directory_delete(dd, name);
 }
 
+// moves a file 
 int
 storage_rename(const char* from, const char* to)
 {
@@ -222,19 +219,22 @@ storage_rename(const char* from, const char* to)
     return rv;
 }
 
+// creates a new directory at specified path
 int
 storage_mkdir(const char* path, mode_t mode)
 {
     //mode += 16384; // 40000 in octal
     
+	// TODO: double check this error handeling
     if (!S_ISDIR(mode + 16384)) // 16384 = 40000 in octal 
 	{ 
 	    printf("bad mode: %u\n", mode);
-	    //return -EBADF; 
+	    return -EBADF; 
 	}
     return storage_mknod(path, mode + 16384, 0);
 }
 
+// removes the specified directory
 int
 storage_rmdir(const char* path)
 {
@@ -281,7 +281,7 @@ storage_link(const char *from, const char *to)
 	directory_put_ent(target_dir, name, old_pnum);
 }
 
-
+// creats a softlink between the paths
 int 
 storage_symlink(const char* from, const char* to)
 {
@@ -294,7 +294,6 @@ storage_symlink(const char* from, const char* to)
     int pnum = pages_find_empty();
     pnode* node = pages_get_node(pnum);
     node->refs = 0;
-	printf("s_iflnk:%i\n", S_IFLNK);
     node->mode = 41453;//S_IFLNK + 755;  // <----- mark it as a symlink
 	
 	int from_pnum = tree_lookup_pnum(from);
@@ -309,8 +308,9 @@ storage_symlink(const char* from, const char* to)
 }
 
 
-
-
+// TODO: fix this
+// reads the link, specified by paht, and coppies the next path 
+// into buff.
 int
 storage_readlink(const char* path, char* buff, size_t size)
 {
