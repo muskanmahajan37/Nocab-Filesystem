@@ -181,8 +181,7 @@ nufs_symlink(const char* from, const char* to)
 	
 }
 
-// reads the data at the end of the link at path. TODO: Currently
-// not working properyly.
+// reads the data at the end of the link at path. 
 int
 nufs_readlink(const char* path, char* buff, size_t size)
 {

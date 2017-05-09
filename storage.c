@@ -310,8 +310,7 @@ storage_symlink(const char* from, const char* to)
 }
 
 
-// TODO: fix this
-// reads the link, specified by paht, and coppies the next path 
+// reads the link, specified by path, and coppies the next path 
 // into buff.
 int
 storage_readlink(const char* path, char* buff, size_t size)
@@ -328,7 +327,7 @@ storage_readlink(const char* path, char* buff, size_t size)
 	memcpy(buff, page, size);
 	printf("  readlink buff:%s\n", buff);
 	printf("  readlink page:%s\n", page);
-	return 0;//size;
+	return 0;
 }
 
 

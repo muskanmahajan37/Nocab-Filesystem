@@ -20,7 +20,12 @@ Personally added features:
 These are features I authored 100% on my own.
 	- Creating directories
 	- Adding 4kMB files to directories other than root
-
+	- Creating softlinks
+		- Still requires more testing
+		- Works in root folder, unsure about across
+		  directories.
+	- Reading softlinks
+		- Same notes as above.
 
 
 
