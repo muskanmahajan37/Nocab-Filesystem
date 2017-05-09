@@ -187,7 +187,7 @@ int
 nufs_readlink(const char* path, char* buff, size_t size)
 {
 	printf("readlink(%s, %u)\n", path, size);
-	return 0;
+	return storage_readlink(path, buff, size);//0;
 }
 
 int
@@ -213,7 +213,7 @@ nufs_init_ops(struct fuse_operations* ops)
     ops->open	  = nufs_open;
     ops->read     = nufs_read;
     ops->write    = nufs_write;
-
+	
     ops->link     = nufs_link;
     ops->symlink  = nufs_symlink;
     ops->readlink = nufs_readlink;

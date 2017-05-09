@@ -303,6 +303,8 @@ storage_symlink(const char* from, const char* to)
 	void* page = pages_get_page(pnum);
 	memcpy(page, from, sizeof page);
 
+	printf("  symlink, from:%s\n", from);
+
     return directory_put_ent(dir, name, pnum);
 	
 }
@@ -317,12 +319,16 @@ storage_readlink(const char* path, char* buff, size_t size)
 	int link_pnum = tree_lookup_pnum(path);
 	pnode* link_node = pages_get_node(link_pnum);	
 
+	// next_pnum is the pnum for the og file
 	int next_pnum = link_node->xtra;
 	//pnode* next_node = pages_get_node(next_pnum);
-	void* page = pages_get_page(next_pnum);
+	void* page = pages_get_page(link_pnum);
+	
 	
 	memcpy(buff, page, size);
-	return size;
+	printf("  readlink buff:%s\n", buff);
+	printf("  readlink page:%s\n", page);
+	return 0;//size;
 }
 
 
